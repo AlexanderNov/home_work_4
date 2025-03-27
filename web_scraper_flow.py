@@ -18,7 +18,7 @@ def scrape_website(url: str) -> Dict:
 def main_flow(sites: Dict[str, List[str]] = None):
     if sites is None:
         sites = {
-            "mvideo": ["https://www.mvideo.ru/product-list-page?q=samsung+galaxy"]
+            "mvideo": ["https://www.mvideo.ru/product-list-page?q=samsung+galaxy+s24"]
         }
     results = []
     for category, urls in sites.items():
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         cron="*/5 * * * *",
         parameters={
             "sites": {
-                "mvideo": ["https://www.mvideo.ru/product-list-page?q=samsung+galaxy"]
+                "mvideo": ["https://www.mvideo.ru/product-list-page?q=samsung+galaxy+s24"]
             }
         },
         tags=["production"],

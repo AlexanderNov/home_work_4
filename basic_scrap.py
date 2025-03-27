@@ -23,7 +23,7 @@ def scrape_with_selenium(url):
         time.sleep(1)
 
         position = 0
-        for i in range(10):
+        for i in range(5):
             position += driver.execute_script("return window.innerHeight")
             driver.execute_script(f"window.scrollTo(0,{position})")
             time.sleep(0.1)
@@ -53,5 +53,5 @@ def scrape_with_selenium(url):
 
 
 if __name__ == "__main__":
-    target_url = "https://www.mvideo.ru/product-list-page?q=samsung+galaxy"
+    target_url = "https://www.mvideo.ru/product-list-page?q=samsung+galaxy+s24"
     scrape_with_selenium(target_url)
