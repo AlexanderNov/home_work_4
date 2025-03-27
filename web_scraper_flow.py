@@ -36,5 +36,5 @@ if __name__ == "__main__":
             }
         },
         tags=["production"],
-        description="Parallel web scraping every 5 mins",
+        description="Web scraping every 5 mins",
     )

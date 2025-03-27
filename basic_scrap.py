@@ -34,7 +34,6 @@ def scrape_with_selenium(url):
         with sessionmaker(bind=create_engine('sqlite:///products.db'))() as session:
 
             for product in products:
-                # driver.execute_script(f"window.scrollTo(0,{product.location['y']})")
                 name = product.find_element(By.CLASS_NAME, 'product-title__text').text
                 price = product.find_element(By.CLASS_NAME, 'price__main-value').text
                 item_url = product.find_element(By.CLASS_NAME, 'product-title__text').get_attribute("href")

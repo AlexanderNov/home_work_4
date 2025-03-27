@@ -16,7 +16,7 @@ class Product(Base):
 
 if __name__ == "__main__":
     engine = create_engine('sqlite:///products.db')
-    Base.metadata.drop_all(engine) # очистка база данных
+    # Base.metadata.drop_all(engine) # очистка база данных
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
