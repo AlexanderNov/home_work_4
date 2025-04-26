@@ -6,3 +6,5 @@ Web Scraper https://www.mvideo.ru/product-list-page?q=samsung+galaxy+s24
 для разового сбора информации запустить basic_scrap.py
 для запуска с помощью prefect запустить web_scraper_flow.py
 для построения графика на основе собранной базы данных запустить analyse.py
+
+для работы через API на основе собранной базы данных запустить api.py и пройти по ссылке http://localhost:8000/static/index.html

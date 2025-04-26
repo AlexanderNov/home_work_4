@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерфейс для работы с товарами</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .filters {
+            width: 300px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .results {
+            flex-grow: 1;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Поиск товаров</h1>
+    <div class="container">
+        <div class="filters">
+            <div class="form-group">
+                <label for="name">Название:</label>
+                <input type="text" id="name">
+            </div>
+            <div class="form-group">
+                <label for="min_price">Минимальная цена:</label>
+                <input type="number" id="min_price" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="max_price">Максимальная цена:</label>
+                <input type="number" id="max_price" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="sort_by">Сортировать по:</label>
+                <select id="sort_by">
+                    <option value="">-- Не сортировать --</option>
+                    <option value="name">Названию</option>
+                    <option value="price">Цене</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="order">Порядок сортировки:</label>
+                <select id="order">
+                    <option value="asc">По возрастанию</option>
+                    <option value="desc">По убыванию</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="limit">Количество на странице:</label>
+                <select id="limit">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <button onclick="fetchData()">Поиск</button>
+            <div id="error" class="error"></div>
+        </div>
+        <div class="results">
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Цена</th>
+                        <th>Ссылка</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="pagination">
+                <button id="prev-page" onclick="prevPage()">Назад</button>
+                <span id="page-info">Страница 1</span>
+                <button id="next-page" onclick="nextPage()">Вперед</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let totalItems = 0;
+        const limit = parseInt(document.getElementById('limit').value);
+
+        function updatePagination() {
+            document.getElementById('page-info').textContent = `Страница ${currentPage}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+        }
+
+        const API_BASE_URL = 'http://localhost:8000';  // Базовый URL API
+
+        async function fetchData() {
+            const name = document.getElementById('name').value;
+            const minPrice = document.getElementById('min_price').value;
+            const maxPrice = document.getElementById('max_price').value;
+            const sortBy = document.getElementById('sort_by').value;
+            const order = document.getElementById('order').value;
+            const limit = parseInt(document.getElementById('limit').value);
+
+            const skip = (currentPage - 1) * limit;
+
+            // Формируем базовый URL
+            let url = `http://localhost:8000/items/?skip=${skip}&limit=${limit}`;
+
+            // Добавляем параметры фильтрации
+            if (name) url += `&name=${encodeURIComponent(name)}`;
+            if (minPrice) url += `&min_price=${minPrice}`;
+            if (maxPrice) url += `&max_price=${maxPrice}`;
+            if (sortBy) url += `&sort_by=${sortBy}&order=${order}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Ошибка при получении данных');
+                }
+                const data = await response.json();
+
+                const tableBody = document.querySelector('#results-table tbody');
+                tableBody.innerHTML = '';
+
+                if (data.length === 0) {
+                    document.getElementById('error').textContent = 'Товары не найдены';
+                    return;
+                }
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.price}</td>
+                        <td><a href="${item.item_url}" target="_blank">Ссылка</a></td>
+                        <td>${item.datetime}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById('error').textContent = '';
+                updatePagination();
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchData();
+            }
+        }
+
+        function nextPage() {
+            currentPage++;
+            fetchData();
+        }
+
+        // Загрузка данных при открытии страницы
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>

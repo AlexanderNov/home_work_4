@@ -2,3 +2,6 @@ SQLAlchemy~=2.0.39
 selenium~=4.30.0
 prefect~=3.2.14.dev2
 matplotlib~=3.10.1
+uvicorn~=0.34.0
+fastapi~=0.115.11
+pydantic~=2.10.6
