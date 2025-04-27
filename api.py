@@ -37,7 +37,7 @@ class ItemResponse(BaseModel):
 
 
 def clean_price_column(column):
-    # т.к. в базе цена string, то удаляем все символы кроме цифр и точки
+    # Удаляем из price все символы кроме цифр и точки
     price_clean = column
     for char in [' ', ',', '₽']:
         price_clean = func.replace(price_clean, char, '')
@@ -46,14 +46,15 @@ def clean_price_column(column):
 
 @app.get("/items/", response_model=List[ItemResponse])
 def get_items(
-        skip: int = Query(0, ge=0),
-        limit: int = Query(10, ge=1, le=100),
-        name: Optional[str] = None,
-        min_price: Optional[float] = None,
-        max_price: Optional[float] = None,
-        sort_by: Optional[str] = Query(None, pattern="^(name|price)$"),
-        order: Optional[str] = Query("asc", pattern="^(asc|desc)$")
+        skip: int = Query(0, ge=0, description="Количество пропускаемых записей"),
+        limit: int = Query(10, ge=1, le=100, description="Лимит на количество записей"),
+        name: Optional[str] = Query(None, description="Фильтр по названию (частичное совпадение)"),
+        min_price: Optional[float] = Query(None, description="Минимальная цена"),
+        max_price: Optional[float] = Query(None, description="Максимальная цена"),
+        sort_by: Optional[str] = Query(None, pattern="^(name|price)$", description="Поле для сортировки"),
+        order: Optional[str] = Query("asc", pattern="^(asc|desc)$", description="Порядок сортировки")
 ):
+    """Получение списка товаров с возможностью фильтрации и сортировки."""
     db = SessionLocal()
     try:
         query = db.query(Item)
